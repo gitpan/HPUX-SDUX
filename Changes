@@ -1,0 +1,6 @@
+Revision history for Perl extension HPUX::SDUX.
+
+0.01  Thu Mar 27 13:04:47 2003
+	- original version; created by h2xs 1.22 with options
+		-X -n HPUX::SDUX
+

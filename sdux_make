@@ -1,0 +1,8 @@
+install:
+	mkdir HPUX
+	ln SDUX.pm HPUX
+	perl -MHPUX::SDUX -e wmf
+	make
+	make test
+	make depot
+	swinstall -s $PWD/sdux
