@@ -14,7 +14,7 @@ use vars qw(
 	$VERSION @EXPORT
 );
 
-$VERSION='0.02';
+$VERSION='0.03';
 @HPUX::SDUX::ISA = qw( Exporter );
 
 # We will export &wmf so that
@@ -225,25 +225,32 @@ sub wmf() {
 
 # ExtUtils::MakeMaker methods overridden by $package_name
 sub MY::clean {
-	my \$clean_target = &ExtUtils::MM_Unix::clean;
-	\$clean_target .= "\\t\\\$(RM_RF) Makefile.SDUX HPUX sdux\\\$(DEV_NULL)\\n";
-	\$clean_target .= "\\t-\\@\\\$(MV) module.psf module.psf.old \\\$(DEV_NULL)";
-	\$clean_target;
+	my \$clean = &ExtUtils::MM_Unix::clean;
+	\$clean .= "\\t\\\$(RM_RF) HPUX sdux \\\$(DEV_NULL)\\n";
+	\$clean .= "\\t-\\\$(MV) module.psf module.psf.old \\\$(DEV_NULL)\\n";
+	\$clean .= "\\t-\\\$(MV) Makefile.SDUX Makefile.SDUX.old \\\$(DEV_NULL)";
+	\$clean;
+}
+
+sub MY::realclean {
+	my \$realclean = &ExtUtils::MM_Unix::realclean;
+	\$realclean .= "\\t\\\$(RM_RF) module.psf module.psf.old \\\$(DEV_NULL)\\n";
+	\$realclean .= "\\t\\\$(RM_RF) Makefile.SDUX Makefile.SDUX.old \\\$(DEV_NULL)";
+	\$realclean;
+}
+
+sub MY::postamble {
+	my \$postamble = <<'END_DEPOT';
+depot: install
+	\$(PERL) -M$package_name -e ${package_name}::write_psf
+	swpackage -s module.psf -x write_remote_files=true \@$sdux_install_dir
+END_DEPOT
 }
 END_MAKEFILE_PL
 		close MYMAKEFILE;
 		do $sdux_makefile or die "Cannot create Makefile: $!";
 	}
 	
-	# add "depot" target to the resulting Makefile
-	
-	open MAKEFILE, ">> Makefile" || die "Cannot open Makefile: $?";
-	print MAKEFILE <<"END_DEPOT";
-depot: install
-	\$(PERL) -M$package_name -e ${package_name}::write_psf
-	swpackage -s module.psf -x write_remote_files=true \@$sdux_install_dir
-END_DEPOT
-	close MAKEFILE || die "Cannot close $makefile: $?";
 }
 
 ######################################################################

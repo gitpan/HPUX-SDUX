@@ -12,23 +12,3 @@ WriteMakefile(
 #    'INSTALLDIRS'		=> 'site',
 #	 'PREFIX'		=> 'sdux',
 );
-
-#
-# Override 'clean' and 'realclean' targets
-#
-
-sub MY::clean {
-	my $clean = &ExtUtils::MM_Unix::clean;
-	$clean .= <<'CLEAN';
-	$(RM_RF) HPUX $(DEV_NULL)
-	-@$(MV) module.psf module.psf.old $(DEV_NULL)
-CLEAN
-}
-
-sub MY::realclean {
-	my $realclean = &ExtUtils::MM_Unix::realclean;
-	$realclean .= <<'REALCLEAN';
-	$(RM_RF) Makefile.SDUX $(DEV_NULL)
-	$(RM_RF) module.psf module.psf.old $(DEV_NULL)
-REALCLEAN
-}
