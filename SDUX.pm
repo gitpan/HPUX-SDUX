@@ -14,7 +14,7 @@ use vars qw(
 	$VERSION @EXPORT
 );
 
-$VERSION='0.01';
+$VERSION='0.02';
 @HPUX::SDUX::ISA = qw( Exporter );
 
 # We will export &wmf so that
@@ -39,7 +39,7 @@ END {
 # execute Makefile.SDUX to write Makefile, and then add a new target 'depot.'
 #
 # The target 'depot' will:
-# 1. install module's into a temporary directory (./sdux by default)
+# 1. install module into a temporary directory (./sdux by default)
 #    and determine the content of this module distribution
 # 2. write module.psf file with &HPUX::SDUX::write_psf
 # 3. call 'swpackage -s module.psf'
@@ -204,7 +204,7 @@ PRODUCT_SECTION_POSTAMBLE
 sub wmf() {
 	my $package_name = __PACKAGE__;
 	my $sdux_makefile    = 'Makefile.SDUX';
-	my $makefile = shift @ARGV || 'Makefile.PL';	# read Makefile.PL by default
+	my $makefile = 'Makefile.PL';	# read Makefile.PL by default
 	die "$makefile does not exist: $?" unless (-f $makefile);
 	
 	{
@@ -226,8 +226,8 @@ sub wmf() {
 # ExtUtils::MakeMaker methods overridden by $package_name
 sub MY::clean {
 	my \$clean_target = &ExtUtils::MM_Unix::clean;
-	\$clean_target .= "\\trm -f Makefile.SDUX HPUX sdux\\\$(DEV_NULL)\\n";
-	\$clean_target .= "\\tmv -f module.psf module.psf.old \\\$(DEV_NULL)";
+	\$clean_target .= "\\t\\\$(RM_RF) Makefile.SDUX HPUX sdux\\\$(DEV_NULL)\\n";
+	\$clean_target .= "\\t-\\@\\\$(MV) module.psf module.psf.old \\\$(DEV_NULL)";
 	\$clean_target;
 }
 END_MAKEFILE_PL
@@ -340,6 +340,8 @@ F<module.psf> and invokes C<swpackage>.
 Thus certin privileges are required for this target.
 
 =head2 SEE ALSO
+
+L<swpackage(1M)>, L<swinstall(1M)>
 
 L<http://docs.hp.com/hpux/onlinedocs/B2355-90754/B2355-90754.html>
 
